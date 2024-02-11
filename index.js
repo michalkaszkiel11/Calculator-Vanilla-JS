@@ -11,9 +11,7 @@ class App {
     constructor() {
         this.setNumbers();
         this.setOptions();
-        this.useNumbers();
-        this.useOptions();
-        // this.setHistory();
+        this.getLastResult();
         this.setDelete();
         this.setEquality();
     }
@@ -31,9 +29,13 @@ class App {
     useNumbers(e) {
         if (e && e.target && e.target.classList.contains("number")) {
             const number = e.target.textContent;
-            result.textContent += number;
+            if (result.textContent.length < 25) {
+                result.textContent += number;
+            }
         }
+        this.checkOverflow();
     }
+
     setOptions() {
         const optionsArray = ["+", "-", "*", "/", "%"];
         optionsArray.forEach((option) => {
@@ -53,7 +55,7 @@ class App {
 
     setDelete() {
         const deleteBtn = document.createElement("button");
-        deleteBtn.textContent = "Delete";
+        deleteBtn.textContent = "⌫";
         deleteBtn.classList.add("number", "button-30", "delete");
 
         // Filter out text nodes and select the last button element
@@ -64,14 +66,35 @@ class App {
         // Insert the delete button before the last button
         numbers.insertBefore(deleteBtn, lastButton);
         deleteBtn.addEventListener("click", this.useDelete.bind(this));
+        document.addEventListener("keydown", this.handleKeyDown.bind(this));
     }
     useDelete(e) {
         if (e && e.target && e.target.classList.contains("delete")) {
-            if (result.textContent === "Error") {
-                result.textContent = "";
-            } else {
-                result.textContent = result.textContent.slice(0, -1);
-            }
+            this.shouldDelete();
+        }
+    }
+    handleKeyDown(e) {
+        if (/^[0-9]$/.test(e.key) || /[\+\-\*\/]/.test(e.key)) {
+            this.useNumbersFromKeyboard(e.key);
+        } else if (e.key === "Backspace") {
+            this.shouldDelete();
+        } else if (e.key === "Enter") {
+            this.useEquality();
+        }
+    }
+
+    useNumbersFromKeyboard(key) {
+        if (result.textContent.length < 25) {
+            result.textContent += key;
+        }
+        this.checkOverflow();
+    }
+
+    shouldDelete() {
+        if (result.textContent === "Error") {
+            result.textContent = "";
+        } else {
+            result.textContent = result.textContent.slice(0, -1);
         }
     }
 
@@ -85,11 +108,31 @@ class App {
     useEquality() {
         try {
             let equality = eval(result.textContent);
-            if (typeof equality === "number") {
+            if (
+                typeof equality === "number" &&
+                result.textContent.length <= 25
+            ) {
                 result.textContent = equality;
+                history.textContent = equality;
+                localStorage.setItem("lastresult", equality);
+            }
+            if (result.textContent.length > 25) {
+                result.textContent = result.textContent.slice(0, 25);
+                history.textContent = result.textContent;
+                localStorage.setItem("lastresult", result.textContent);
             }
         } catch (error) {
             result.textContent = "Error";
+        }
+    }
+
+    getLastResult() {
+        const lastItem = localStorage.getItem("lastresult");
+        history.textContent = lastItem;
+    }
+    checkOverflow() {
+        if (result.scrollWidth > result.clientWidth) {
+            result.classList.add("overflow");
         }
     }
 }
