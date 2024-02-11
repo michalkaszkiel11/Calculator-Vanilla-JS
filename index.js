@@ -29,11 +29,10 @@ class App {
     useNumbers(e) {
         if (e && e.target && e.target.classList.contains("number")) {
             const number = e.target.textContent;
-            if (result.textContent.length < 25) {
+            if (result.textContent.length < 10) {
                 result.textContent += number;
             }
         }
-        this.checkOverflow();
     }
 
     setOptions() {
@@ -84,10 +83,9 @@ class App {
     }
 
     useNumbersFromKeyboard(key) {
-        if (result.textContent.length < 25) {
+        if (result.textContent.length < 10) {
             result.textContent += key;
         }
-        this.checkOverflow();
     }
 
     shouldDelete() {
@@ -108,32 +106,30 @@ class App {
     useEquality() {
         try {
             let equality = eval(result.textContent);
-            if (
-                typeof equality === "number" &&
-                result.textContent.length <= 25
-            ) {
-                result.textContent = equality;
-                history.textContent = equality;
+
+            if (typeof equality === "number") {
                 localStorage.setItem("lastresult", equality);
-            }
-            if (result.textContent.length > 25) {
-                result.textContent = result.textContent.slice(0, 25);
-                history.textContent = result.textContent;
-                localStorage.setItem("lastresult", result.textContent);
+                const formattedResult = this.formatResult(equality);
+
+                // Update the UI
+                result.textContent = formattedResult;
+                history.textContent = formattedResult;
             }
         } catch (error) {
             result.textContent = "Error";
         }
     }
 
+    formatResult(value) {
+        const stringValue = String(value);
+        return stringValue.length <= 10
+            ? stringValue
+            : stringValue.slice(0, 10);
+    }
+
     getLastResult() {
         const lastItem = localStorage.getItem("lastresult");
         history.textContent = lastItem;
-    }
-    checkOverflow() {
-        if (result.scrollWidth > result.clientWidth) {
-            result.classList.add("overflow");
-        }
     }
 }
 const newCalc = new App();

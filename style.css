@@ -9,6 +9,7 @@ body {
     display: flex;
     justify-content: center;
     align-items: center;
+    font-family: "Lato", sans-serif;
 }
 .box {
     border: 1px solid rgb(173, 173, 173);
@@ -59,7 +60,7 @@ body {
     background-color: rgb(211, 211, 211);
     width: 35%;
     height: clamp(50px, 100px, 150px);
-    font-size: 20px;
+    font-size: 16px;
 }
 .numbers {
     display: flex;
@@ -117,7 +118,7 @@ body {
     touch-action: manipulation;
     white-space: nowrap;
     will-change: box-shadow, transform;
-    font-size: 18px;
+    font-size: 16px;
 }
 
 .button-30:focus {
